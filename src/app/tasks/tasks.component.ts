@@ -3,6 +3,7 @@ import { TaskComponent } from './task/task.component';
 import { DUMMY_TASKS } from '../dummy-tasks';
 import { NewTaskComponent } from './new-task/new-task.component';
 import { NewTask } from './task/task.model';
+import { TasksService } from './tasks.service';
 
 @Component({
   selector: 'app-tasks',
@@ -15,37 +16,17 @@ export class TasksComponent {
   userId = input.required<string>();
   isNewTask = signal(false);
 
-  tasks = signal(DUMMY_TASKS);
-
-  onCompleteTask(taskId: string) {
-    this.tasks.set(this.tasks().filter((task) => task.id !== taskId));
-  }
+  constructor(private tasksService: TasksService) {}
 
   selectedUserTasks = computed(() => {
-    return this.tasks().filter((task) => task.userId === this.userId());
+    return this.tasksService.getUserTasks(this.userId());
   });
 
   onOpenAddTask() {
     this.isNewTask.set(true);
   }
 
-  onCancelNewTask() {
-    this.isNewTask.set(false);
-  }
-
-  onAddTask(taskData: NewTask) {
-    const newTask = {
-      id: Math.floor(Math.random() * 500).toString(),
-      userId: this.userId(),
-      title: taskData.title,
-      summary: taskData.summary,
-      dueDate: taskData.dueDate,
-    };
-
-    this.tasks.update(() => {
-      return [newTask, ...this.tasks()];
-    });
-
+  onCloseNewTask() {
     this.isNewTask.set(false);
   }
 }
